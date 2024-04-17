@@ -6,9 +6,11 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './dtos/user.dto';
+import { JwtGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('users')
 export class UsersController {
@@ -37,6 +39,7 @@ export class UsersController {
     return this.usersService.delete(parseInt(id));
   }
 
+  @UseGuards(JwtGuard)
   @Get()
   async all(): Promise<User[]> {
     return this.usersService.getAll();
