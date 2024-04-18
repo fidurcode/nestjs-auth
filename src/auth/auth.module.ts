@@ -1,19 +1,18 @@
 import { Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { AuthController } from './auth.controller';
-import { UsersService } from '../users/users.service';
 import { JwtModule } from '@nestjs/jwt';
-import * as process from 'node:process';
+import { AuthService } from './auth.service';
+import { UserService } from '../user/user.service';
 import { LocalStrategy } from './strategies/local-strategy';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from '../users/user.entity';
-import { JwtStrategy } from './strategies/jwt-strategy';
 import { RefreshJwtStrategy } from './strategies/refresh-jwt-strategy';
+import { AuthController } from './auth.controller';
+import { User } from '../entities/user.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { JwtStrategy } from './strategies/jwt-strategy';
 
 @Module({
   providers: [
     AuthService,
-    UsersService,
+    UserService,
     LocalStrategy,
     JwtStrategy,
     RefreshJwtStrategy,
@@ -23,7 +22,7 @@ import { RefreshJwtStrategy } from './strategies/refresh-jwt-strategy';
     TypeOrmModule.forFeature([User]),
     JwtModule.register({
       secret: `${process.env.JWT_SECRET}`,
-      signOptions: { expiresIn: '60s' },
+      signOptions: { expiresIn: '3600' },
     }),
   ],
 })

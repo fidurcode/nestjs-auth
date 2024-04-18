@@ -1,30 +1,25 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from './dtos/user.dto';
-import * as bcrypt from 'bcrypt';
+import { UserDto } from './dto/user.dto';
+import { User } from '../entities/user.entity';
 
 @Injectable()
-export class UsersService {
-  constructor(@InjectRepository(User) private repo: Repository<User>) {}
+export class UserService {
+  constructor(
+    @InjectRepository(User) private readonly repo: Repository<User>,
+  ) {}
 
-  async create(user: User): Promise<User> {
-    const userPayload = {
-      username: user.username,
-      password: await this.hashUserPassword(user.password),
-      email: user.email,
-    };
-
-    this.repo.create(userPayload);
-
-    return await this.repo.save(userPayload);
+  async create(userDto: UserDto) {
+    const user: User = this.repo.create(userDto);
+    await this.repo.save(user);
   }
 
   async get(userId: number): Promise<User> {
     return await this.findUser(userId);
   }
 
-  async edit(userId: number, userData: User): Promise<User> {
+  async edit(userId: number, userData: UserDto): Promise<User> {
     const user: User = await this.findUser(userId);
     if (!user) throw new NotFoundException('User does not exist');
 
@@ -48,9 +43,5 @@ export class UsersService {
 
   async findByUserName(username: string): Promise<User> {
     return this.repo.findOne({ where: { username: username } });
-  }
-
-  private async hashUserPassword(password: string): Promise<string> {
-    return bcrypt.hash(password, 12);
   }
 }

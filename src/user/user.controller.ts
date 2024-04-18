@@ -5,25 +5,19 @@ import {
   Get,
   Param,
   Patch,
-  Post,
   UseGuards,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { User } from './dtos/user.dto';
 import { JwtGuard } from '../auth/guards/jwt-auth.guard';
+import { UserService } from './user.service';
+import { User } from '../entities/user.entity';
 
 @Controller('users')
-export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
-
-  @Post('add')
-  async create(@Body() user: User): Promise<User> {
-    return this.usersService.create(user);
-  }
+export class UserController {
+  constructor(private readonly userService: UserService) {}
 
   @Get(':id')
   async profile(@Param('id') id: string): Promise<User> {
-    return this.usersService.get(parseInt(id));
+    return this.userService.get(parseInt(id));
   }
 
   @Patch(':id')
@@ -31,17 +25,17 @@ export class UsersController {
     @Param('id') id: string,
     @Body() updateUser: User,
   ): Promise<User> {
-    return this.usersService.edit(parseInt(id), updateUser);
+    return this.userService.edit(parseInt(id), updateUser);
   }
 
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<User> {
-    return this.usersService.delete(parseInt(id));
+    return this.userService.delete(parseInt(id));
   }
 
   @UseGuards(JwtGuard)
   @Get()
   async all(): Promise<User[]> {
-    return this.usersService.getAll();
+    return this.userService.getAll();
   }
 }
