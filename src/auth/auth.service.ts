@@ -4,7 +4,6 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '../entities/user.entity';
 import { UserDto } from '../user/dto/user.dto';
-import { use } from 'passport';
 import * as process from 'node:process';
 
 @Injectable()
@@ -38,13 +37,19 @@ export class AuthService {
 
     const accessToken = this.jwtService.sign(payload, {
       secret: process.env.JWT_SECRET,
-      expiresIn: parseInt(process.env.ACCESS_TOKEN_EXPIRE),
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRE,
+    });
+
+    const refreshToken = this.jwtService.sign(payload, {
+      secret: process.env.JWT_SECRET,
+      expiresIn: process.env.REFRESH_TOKEN_EXPIRE,
     });
 
     return {
       email: user.email,
       username: user.username,
       accessToken: accessToken,
+      refreshToken: refreshToken,
     };
   }
 
@@ -59,14 +64,19 @@ export class AuthService {
 
   async refreshToken(user: User) {
     const payload = {
-      username: user.email,
+      username: user.username,
       sub: {
         name: user.username,
       },
     };
 
+    const accessToken = this.jwtService.sign(payload, {
+      secret: process.env.JWT_SECRET,
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRE,
+    });
+
     return {
-      accessToken: this.jwtService.sign(payload),
+      accessToken: accessToken,
     };
   }
 }

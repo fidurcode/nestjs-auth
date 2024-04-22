@@ -15,11 +15,13 @@ import { User } from '../entities/user.entity';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @UseGuards(JwtGuard)
   @Get(':id')
   async profile(@Param('id') id: string): Promise<User> {
     return this.userService.get(parseInt(id));
   }
 
+  @UseGuards(JwtGuard)
   @Patch(':id')
   async editProfile(
     @Param('id') id: string,
@@ -28,6 +30,7 @@ export class UserController {
     return this.userService.edit(parseInt(id), updateUser);
   }
 
+  @UseGuards(JwtGuard)
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<User> {
     return this.userService.delete(parseInt(id));
