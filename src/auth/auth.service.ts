@@ -4,6 +4,8 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '../entities/user.entity';
 import { UserDto } from '../user/dto/user.dto';
+import { use } from 'passport';
+import * as process from 'node:process';
 
 @Injectable()
 export class AuthService {
@@ -34,10 +36,15 @@ export class AuthService {
       },
     };
 
+    const accessToken = this.jwtService.sign(payload, {
+      secret: process.env.JWT_SECRET,
+      expiresIn: parseInt(process.env.ACCESS_TOKEN_EXPIRE),
+    });
+
     return {
       email: user.email,
       username: user.username,
-      accessToken: this.jwtService.sign(payload),
+      accessToken: accessToken,
     };
   }
 
@@ -47,7 +54,7 @@ export class AuthService {
       throw new BadRequestException('User already exists');
     }
 
-    await this.userService.create(user);
+    return await this.userService.create(user);
   }
 
   async refreshToken(user: User) {
